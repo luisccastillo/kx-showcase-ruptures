@@ -1,25 +1,22 @@
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import ruptures as rpt
-import argparse
 import numpy as np
 import pandas as pd
-import sys
+import json
 import os
 
-parser = argparse.ArgumentParser(description='RupturesApp')
-parser.add_argument('--src', required=True, help='Path for source dataset')
-# parser.add_argument('--out', required=True, help='Path for storing output images')
-
-args = parser.parse_args()
-
-
+iexec_in = os.environ['IEXEC_IN']
 iexec_out = os.environ['IEXEC_OUT']
-print(args.src)
-signal = pd.read_csv(args.src)
+dataset_filename = os.environ['IEXEC_DATASET_FILENAME']
 
+signal = pd.read_csv(iexec_in + '/' + dataset_filename)
 
 algo = rpt.Pelt(model="rbf").fit(signal)
 result = algo.predict(pen=10)
 
 rpt.display(signal, [], result)
-plt.savefig('{}/results_change_point_detect_{}.pdf'.format(iexec_out, args.src.split('/')[-1]))
+# plt.savefig('{}/results_change_point_detect.pdf'.format(iexec_out))
+
+with open(iexec_out + '/computed.json', 'w+') as f:
+    json.dump({"deterministic-output-path": iexec_out +
+              '/results_change_point_detect.pdf'}, f)

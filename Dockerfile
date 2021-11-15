@@ -1,18 +1,18 @@
-FROM ubuntu:latest
-
-ENV DEBIAN_FRONTEND=noninteractive
+FROM ubuntu:20.04
 
 RUN apt-get update \
-  && apt-get install -y python3-pip python3-dev \
-  && cd /usr/local/bin \
-  && ln -s /usr/bin/python3 python \
-  && pip3 install --upgrade pip
+  && apt-get install -y --no-install-recommends \
+  wget \
+  ca-certificates \
+  && rm -rf /var/lib/apt/lists/* && \
+  wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+  bash Miniconda3-latest-Linux-x86_64.sh -b -p /root/miniconda
+
+ENV PATH=/root/miniconda/bin:$PATH
 
 COPY requirements.txt requirements.txt
 RUN pip3 --no-cache-dir install -r requirements.txt
+
 COPY ./src /app
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/root/miniconda/bin/python3.9", "/app/app.py"]
